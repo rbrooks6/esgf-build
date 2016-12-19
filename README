@@ -26,4 +26,3 @@ IMPORTANT: always perform 'esgf-dist.sh test' before you attempt to upload files
 4. Excute 'esgfupload.sh test' to check what files would be updated on coffee. Check in particular binary versions. Execute esgfupload.sh to push out the binaries to coffee. Trigger a local mirror update, with esgfdist.sh, to verify that both your mirror and coffee are in perfect sync.
 
 Done!
-

@@ -4,7 +4,7 @@
 ANT=/usr/bin/ant
 JAVADIR=/opt/jdk1.8.0_45
 PYTHONDIR=/opt/esgf/python
-LOGDIR=./buildlogs
+LOGDIR=$PWD/buildlogs
 
 export JAVA_HOME=$JAVADIR
 if ! echo $PATH|grep "$JAVADIR" >/dev/null; then 
@@ -16,6 +16,7 @@ if ! echo $PATH|grep "$PYTHONDIR" >/dev/null; then
 	export PATH=$PYTHONDIR/bin:$PATH;
 fi
 fulllist='esgf-node-manager esgf-security esg-orp esgf-idp esg-search esgf-dashboard esgf-desktop esgf-getcert'
+#fulllist='esgf-dashboard'
 for i in $fulllist; do
 	echo -n >$LOGDIR/$i-clean.log
 	echo -n >$LOGDIR/$i-pull.log

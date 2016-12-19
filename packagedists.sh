@@ -1,7 +1,7 @@
 #!/bin/bash
 
 script_maj_version=2.4
-script_version='v2.4.5-devel-release'
+script_version='v2.4.10-devel-release'
 script_release='Bifrost'
 
 ####Do not change below this line####
