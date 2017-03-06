@@ -18,11 +18,11 @@ At this point, you have the packaged tarballs in final-dists. This is ready for 
 
 Steps for extraction and upload to the dist-mirror (and optionally, setting up a dist mirror)
 
-1. esgf-dist.sh sets up and updates a dist mirror that you run. If run without arguments, it actually performs an update; with any argument, it does a dry-run.
+1. esgfdist.sh sets up and updates a dist mirror that you run. If run without arguments, it actually performs an update; with any argument, it does a dry-run.
 It assumes you have your ssh keys setup on coffee, for passwordless ssh.
-IMPORTANT: always perform 'esgf-dist.sh test' before you attempt to upload files.
+IMPORTANT: always perform 'esgfdist.sh test' before you attempt to upload files.
 2. In the transfer.sh file, set devel=1, if you are doing a devel binary upload. Set devel=0, for a master upload. Execute transfer.sh to extract your freshly built binaries.
-3. Check the values of devel, script_version, script_release and script_maj_version in esgf-update.sh and execute it. Preferably, change the srcdir value to a clean clone of esgf-installer, which shouldn't have any unsaved changes.
+3. Check the values of devel, script_version, script_release and script_maj_version in update-esgnode.sh and execute it. Preferably, change the srcdir value to a clean clone of esgf-installer, which shouldn't have any unsaved changes.
 4. Excute 'esgfupload.sh test' to check what files would be updated on coffee. Check in particular binary versions. Execute esgfupload.sh to push out the binaries to coffee. Trigger a local mirror update, with esgfdist.sh, to verify that both your mirror and coffee are in perfect sync.
 
 Done!
