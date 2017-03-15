@@ -1,6 +1,6 @@
 #!/bin/bash
 
-fulllist='esgf-dashboard esgf-desktop esgf-getcert esgf-idp esgf-installer esgf-node-manager esgf-publisher-resources esgf-security esg-orp esg-publisher esg-search'
+fulllist='esgf-dashboard esgf-desktop esgf-getcert esgf-idp esgf-installer esgf-node-manager esgf-publisher-resources esgf-security esg-orp esg-publisher esg-search esgf-stats-api'
 active_branch='devel'
 
 
@@ -11,7 +11,7 @@ for i in $fulllist; do
 	echo "----------------------------" >>taglist;
 	cd $i;
 	git checkout $active_branch;
-	git pull;
+	#git pull;
 	git describe; 
 	git describe>>../taglist; 
 	cd ..

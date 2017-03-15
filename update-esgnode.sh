@@ -1,9 +1,9 @@
 #!/bin/bash
-#script_version='v2.4.24-devel-release'
-script_version='v2.4.24-master-release'
-script_release='Bifrost'
-script_maj_version='2.4'
-devel=0
+script_version='v2.5.0-devel-release'
+#script_version='v2.4.24-master-release'
+script_release='Midgard'
+script_maj_version='2.5'
+devel=1
 srcdir=./esgf-installer
 pushd $srcdir
 if [ $devel -eq 0 ]; then 

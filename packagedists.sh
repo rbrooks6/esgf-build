@@ -1,8 +1,8 @@
 #!/bin/bash
 
-script_maj_version=2.4
-script_version='v2.4.10-devel-release'
-script_release='Bifrost'
+script_maj_version=2.5
+script_version='v2.5.0-devel-release'
+script_release='Midgard'
 
 ####Do not change below this line####
 replace_version='v2.0-RC5.4.0-devel'

@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #check correctness of paths
-ANT=/usr/bin/ant
-JAVADIR=/opt/jdk1.8.0_45
-PYTHONDIR=/opt/esgf/python
+ANT=/usr/local/ant/bin/ant
+JAVADIR=/usr/
+PYTHONDIR=//anaconda/bin/python
 LOGDIR=$PWD/buildlogs
 
 export JAVA_HOME=$JAVADIR
@@ -15,7 +15,7 @@ if ! echo $PATH|grep "$PYTHONDIR" >/dev/null; then
 	echo "Will prepend path with custom python";
 	export PATH=$PYTHONDIR/bin:$PATH;
 fi
-fulllist='esgf-node-manager esgf-security esg-orp esgf-idp esg-search esgf-dashboard esgf-desktop esgf-getcert'
+fulllist='esgf-node-manager esgf-security esg-orp esgf-idp esg-search esgf-dashboard esgf-desktop esgf-getcert esgf-stats-api'
 #fulllist='esgf-dashboard'
 for i in $fulllist; do
 	echo -n >$LOGDIR/$i-clean.log
