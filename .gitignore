@@ -13,7 +13,6 @@ esgf-product-server/
 esgf-publisher-resources/
 esgf-security/
 esgf-web-fe/
-esgfupload.sh
 filters/
 final-dists/
 legacy/
