@@ -1,19 +1,23 @@
 #!/bin/bash
 
 #check correctness of paths
-ANT=/usr/local/ant/bin/ant
-JAVADIR=/usr/
-PYTHONDIR=//anaconda/bin/python
+ANT=echo $(which ant)
+JAVA_BINARY=$(which java)
+JAVADIR=${JAVA_BINARY%/*}
+echo "JAVA_DIR: ${JAVADIR}"
+PYTHON_BINARY=$(which python)
+PYTHONDIR=${PYTHON_BINARY%/*}
+echo "PYTHONDIR: ${PYTHONDIR}"
 LOGDIR=$PWD/buildlogs
 
 export JAVA_HOME=$JAVADIR
 if ! echo $PATH|grep "$JAVADIR" >/dev/null; then 
 	echo "Will prepend path with custom java";
-	export PATH=$JAVADIR/bin:$PATH;
+	export PATH=$JAVADIR:$PATH;
 fi
 if ! echo $PATH|grep "$PYTHONDIR" >/dev/null; then 
 	echo "Will prepend path with custom python";
-	export PATH=$PYTHONDIR/bin:$PATH;
+	export PATH=$PYTHONDIR:$PATH;
 fi
 fulllist='esgf-node-manager esgf-security esg-orp esgf-idp esg-search esgf-dashboard esgf-desktop esgf-getcert esgf-stats-api'
 #fulllist='esgf-dashboard'
