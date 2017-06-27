@@ -3,11 +3,11 @@ Readme doc for setting up build environment and optionally the rsync mirror.
 1. Ensure that allrepos.txt and repo_list.txt is found and current.
 
 2. Execute updateall.sh passing the branch to be updated as a command line argument (i.e. updateall.sh devel), to sequentially checkout the latest commit from the active branch. 
-.. * It also creates the taglist file, which you should check, to see if there are any commits after the last annotated tags.
+   * It also creates the taglist file, which you should check, to see if there are any commits after the last annotated tags.
 
 3. If any retagging is needed, do so. Remember to use annotated tags. 
-.. * git tag -a '<version>' 'message'
-.. * ex: git tag -a 'v1.3.22-centaur-release' 'for whatever release'
+   * git tag -a '<version>' 'message'
+   * ex: git tag -a 'v1.3.22-centaur-release' 'for whatever release'
 
 4. Check paths to JAVA and PYTHON installation directories listed in buildall.sh. Use Sun Java 8 and Python 2.7
 
