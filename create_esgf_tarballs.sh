@@ -33,9 +33,9 @@ components[esgf-product-server]='esg-product-server'
 components[filters]='esg-access-logging-filter esg-drs-resolving-filter esg-security-las-ip-filter esg-security-tokenless-filters' 
 components[esgf-cog]='esg-cog'
 components[esgf-stats-api]='bin/esg_stats-api_v2 dist/esgf-stats-api.war'
-rm -rf final-dists
+rm -rf esgf_tarballs
 rm -rf temp-dists
-mkdir final-dists
+mkdir esgf_tarballs
 mkdir temp-dists
 mkdir esgf-product-server 2>/dev/null
 mkdir filters 2>/dev/null
@@ -81,10 +81,10 @@ for i in "${!components[@]}"; do
 		mv esg-node* jar_security_scan* setup-autoinstall* esg-purge.sh* esg-init* esg-functions* esg-bootstrap* $script_maj_version/;
 	fi
 	tar -czf $i-dist.tgz *;
-	mv $i-dist.tgz ../final-dists
+	mv $i-dist.tgz ../esgf_tarballs
 	cd ..
 	rm -rf temp-dists/*
-	tar -tf final-dists/$i-dist.tgz |while read ln; do
+	tar -tf esgf_tarballs/$i-dist.tgz |while read ln; do
 		val=`echo $ln|sed '/\(.*\/$\)/d'`;
 		echo "$i/$ln">>listoffiles;
 	done
