@@ -19,13 +19,20 @@ if ! echo $PATH|grep "$PYTHONDIR" >/dev/null; then
 	export PATH=$PYTHONDIR:$PATH;
 fi
 
-#Uses mapfile CLI tool that's part of Bash version 4
-mapfile -t fulllist < "$(dirname -- "$0")/repo_list.txt"
-echo "fulllist: ${fulllist[*]}"
-echo
+#If no command line arguments; build all repos.  Otherwise build only repos passed as command line arguments
+if [ $# -eq 0 ]; then
+	#Uses mapfile CLI tool that's part of Bash version 4
+	mapfile -t fulllist < "$(dirname -- "$0")/repo_list.txt"
+	echo "fulllist: ${fulllist[*]}"
+	echo
+else
+	fulllist=("${@:1}")
+	echo "fulllist: ${fulllist[*]}"
+	echo
+fi
 
 
-for i in $fulllist; do
+for i in "${fulllist[@]}"; do
 	echo -n >$LOGDIR/$i-clean.log
 	echo -n >$LOGDIR/$i-pull.log
 	echo -n >$LOGDIR/$i-build.log
@@ -43,3 +50,6 @@ for i in $fulllist; do
 	$ANT publish_local 2>&1|tee $LOGDIR/$i-publishlocal.log;
 	cd ..
 done
+
+#Logs out the build result of all of the repos
+grep -R "BUILD" buildlogs/esg*-*-build.log
