@@ -1,6 +1,9 @@
-#!/bin/bash
+#!/usr/local/bin/bash
 
-fulllist='esgf-dashboard esgf-desktop esgf-getcert esgf-idp esgf-installer esgf-node-manager esgf-publisher-resources esgf-security esg-orp esg-publisher esg-search esgf-stats-api'
+#Uses mapfile CLI tool that's part of Bash version 4
+mapfile -t fulllist < /Users/hill119/Development/esgf-build/repo_list.txt
+echo "fulllist: ${fulllist[*]}"
+echo
 
 if [[ $1 == "devel" ]]; then
 	active_branch='devel'
@@ -11,9 +14,10 @@ else
 	exit
 fi
 echo "active_branch: ${active_branch}"
+echo
 
 echo -n >taglist;
-for i in $fulllist; do
+for i in "${fulllist[@]}"; do
 	echo $i;
 	echo $i >>taglist;
 	echo "----------------------------" >>taglist;
@@ -22,6 +26,7 @@ for i in $fulllist; do
 	git pull --tags;
 	git describe; 
 	git describe>>../taglist;
+	echo
 	echo "\n" >>taglist; 
 	cd ..
 done
