@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/local/bin/bash
 
 #check correctness of paths
 ANT=$(which ant)
@@ -18,8 +18,13 @@ if ! echo $PATH|grep "$PYTHONDIR" >/dev/null; then
 	echo "Will prepend path with custom python";
 	export PATH=$PYTHONDIR:$PATH;
 fi
-fulllist='esgf-node-manager esgf-security esg-orp esgf-idp esg-search esgf-dashboard esgf-desktop esgf-getcert esgf-stats-api'
-#fulllist='esgf-dashboard'
+
+#Uses mapfile CLI tool that's part of Bash version 4
+mapfile -t fulllist < "$(dirname -- "$0")/repo_list.txt"
+echo "fulllist: ${fulllist[*]}"
+echo
+
+
 for i in $fulllist; do
 	echo -n >$LOGDIR/$i-clean.log
 	echo -n >$LOGDIR/$i-pull.log
