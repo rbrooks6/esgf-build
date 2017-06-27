@@ -24,7 +24,7 @@ Steps for extraction and upload to the dist-mirror
 
 1. Execute create_local_mirror_directory.sh with the distribution type as the command line argument (i.e. create_local_mirror_directory.sh [devel|master]) to extract your freshly built binaries.
 
-2. Execute update-esgnode.sh. Preferably, change the srcdir value to a clean clone of esgf-installer, which shouldn't have any unsaved changes.
+2. Execute update-esgnode.sh by choosing what branch to use for the update (i.e update-esgnode.sh [devel|master]). Preferably, change the srcdir value to a clean clone of esgf-installer, which shouldn't have any unsaved changes.
 
 3. Excute 'esgfupload.sh test' to check what files would be updated on coffee. Check in particular binary versions. Execute esgfupload.sh to push out the binaries to coffee. Trigger a local mirror update, with esgfdist.sh, to verify that both your mirror and coffee are in perfect sync.
 
