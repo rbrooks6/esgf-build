@@ -33,8 +33,9 @@ At this point, you have the packaged tarballs in the esgf_tarballs directory. Th
 # Steps for extraction and upload to the dist-mirror 
 
 1. Execute create_local_mirror_directory.sh with the distribution type as the command line argument to extract your freshly built binaries.
-	* ```shell
-	Example: create_local_mirror_directory.sh [devel|master]
+	* Example: 
+	``` shell
+	create_local_mirror_directory.sh [devel|master]
 	```
 
 2. Execute update-esgnode.sh by choosing what branch to use for the update (i.e update-esgnode.sh [devel|master]). 
