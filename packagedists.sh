@@ -1,8 +1,13 @@
-#!/bin/bash
+#!/usr/local/bin/bash
 
-script_maj_version=2.5
-script_version='v2.5.0-devel-release'
-script_release='Midgard'
+
+source "$(dirname -- "$0")/script_version_attributes.sh"
+
+echo "script_maj_version: ${script_maj_version}"
+echo "script_version: ${script_version}"
+echo "script_release: ${script_release}"
+
+
 
 ####Do not change below this line####
 replace_version='v2.0-RC5.4.0-devel'
@@ -14,7 +19,7 @@ quotedmj=`echo $replace_script_maj_version|sed 's/[./*?|]/\\\\&/g'`;
 
 echo -n >listoffiles;
 declare -A components
-components[esgf-dashboard]='bin/esg-dashboard INSTALL README LICENSE'
+components[esgf-dashboard]='bin/esg-dashboard dist/esgf_dashboard-0.0.2-py2.7.egg INSTALL README LICENSE'
 components[esgf-desktop]='bin/esg-desktop INSTALL README LICENSE'
 components[esgf-idp]='bin/esg-idp INSTALL README LICENSE'
 components[esgf-installer]='jar_security_scan setup-autoinstall globus/esg-globus esg-bootstrap esg-node esg-init esg-functions esg-gitstrap esg-node.completion esg-purge.sh esg-autoinstall-testnode compute-tools/esg-compute-languages compute-tools/esg-compute-tools INSTALL README LICENSE'
@@ -27,6 +32,7 @@ components[esg-search]='bin/esg-search bin/esgf-crawl bin/esgf-optimize-index et
 components[esgf-product-server]='esg-product-server'
 components[filters]='esg-access-logging-filter esg-drs-resolving-filter esg-security-las-ip-filter esg-security-tokenless-filters' 
 components[esgf-cog]='esg-cog'
+components[esgf-stats-api]='bin/esg_stats-api_v2 dist/esgf-stats-api.war'
 rm -rf final-dists
 rm -rf temp-dists
 mkdir final-dists
@@ -59,17 +65,18 @@ for i in "${!components[@]}"; do
 			continue; 
 		else 
 			if [ "$f" = "esg-node" ]; then
-				sed -i "s/\(script_version=\"$quotedsv\"\)/script_version=\"$script_version\"/" esg-node;
-				sed -i "s/\(script_release=\"$quotedsr\"\)/script_release=\"$script_release\"/" esg-node;
-				sed -i "s/\(script_maj_version=\"$quotedmj\"\)/script_maj_version=\"$script_maj_version\"/" esg-node;
+				sed -i .backup "s/\(script_version=\"$quotedsv\"\)/script_version=\"$script_version\"/" esg-node;
+				sed -i .backup "s/\(script_release=\"$quotedsr\"\)/script_release=\"$script_release\"/" esg-node;
+				sed -i .backup "s/\(script_maj_version=\"$quotedmj\"\)/script_maj_version=\"$script_maj_version\"/" esg-node;
 			fi
 			if [ "$f" = "esg-bootstrap" ]; then
-				sed -i "s/\(script_maj_version=\"$quotedmj\"\)/script_maj_version=\"$script_maj_version\"/" esg-bootstrap;
+				sed -i .backup "s/\(script_maj_version=\"$quotedmj\"\)/script_maj_version=\"$script_maj_version\"/" esg-bootstrap;
 			fi
 			md5sum $f >$f.md5; 
 		fi
 	 done
 	if [ "$i" = "esgf-installer" ]; then
+		echo "Found esgf-installer"
 		mkdir $script_maj_version;
 		mv esg-node* jar_security_scan* setup-autoinstall* esg-purge.sh* esg-init* esg-functions* esg-bootstrap* $script_maj_version/;
 	fi
