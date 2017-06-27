@@ -2,7 +2,7 @@ Readme doc for setting up build environment and optionally the rsync mirror.
 # Build Steps
 1. Ensure that allrepos.txt and repo_list.txt is found and current.
 
-2. Execute updateall.sh passing the branch to be updated as a command line argument to sequentially checkout the latest commit from the active branch.
+2. Execute updateall.sh passing the branch to be updated as a command line argument to sequentially checkout the latest commit from the selected branch of each repo.
    * Example: 
    ``` shell 
    updateall.sh devel 
@@ -15,8 +15,13 @@ Readme doc for setting up build environment and optionally the rsync mirror.
 
 4. Check paths to JAVA and PYTHON installation directories listed in buildall.sh. Use Sun Java 8 and Python 2.7
 
-5. Execute buildall.sh to build repos using Ant.  This builds all repos by default, which can be time consuming.  To build a subset of repos, pass the names of the repos as command line arguments (i.e. buildall.sh esgf-dashboard esg-orp).  The buildlogs will be printed out when the script finishes running.
-
+5. Execute buildall.sh to build repos using Ant.  This builds all repos by default, which can be time consuming.  To build a subset of repos, pass the names of the repos as command line arguments.
+   * Example: 
+   ``` shell
+   	   buildall.sh esgf-dashboard esg-orp
+   ```
+   * The buildlogs will be printed out when the script finishes running.  All builds should be successful before moving forward.
+   
 6. Check values of script_maj_version, script_version and script_release in script_version_attributes.sh
 
 7. Execute create_esgf_tarballs.sh.
