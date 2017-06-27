@@ -1,12 +1,11 @@
 #!/bin/bash
 
 #check correctness of paths
-ANT=echo $(which ant)
-JAVA_BINARY=$(which java)
+ANT=$(which ant)
+JAVA_BINARY="$(dirname $(which java))"
 JAVADIR=${JAVA_BINARY%/*}
 echo "JAVA_DIR: ${JAVADIR}"
-PYTHON_BINARY=$(which python)
-PYTHONDIR=${PYTHON_BINARY%/*}
+PYTHONDIR="$(dirname $(which python))"
 echo "PYTHONDIR: ${PYTHONDIR}"
 LOGDIR=$PWD/buildlogs
 
