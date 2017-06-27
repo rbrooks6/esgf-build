@@ -2,7 +2,11 @@ Readme doc for setting up build environment and optionally the rsync mirror.
 # Build Steps
 1. Ensure that allrepos.txt and repo_list.txt is found and current.
 
-2. Execute updateall.sh passing the branch to be updated as a command line argument (i.e.``` shell updateall.sh devel ```), to sequentially checkout the latest commit from the active branch. 
+2. Execute updateall.sh passing the branch to be updated as a command line argument to sequentially checkout the latest commit from the active branch.
+   * Example: 
+   ``` shell 
+   updateall.sh devel 
+   ``` 
    * It also creates the taglist file, which you should check, to see if there are any commits after the last annotated tags.
 
 3. If any retagging is needed, do so. Remember to use annotated tags. 
