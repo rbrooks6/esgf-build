@@ -33,13 +33,17 @@ for i in "${!dists[@]}"; do
                 mkdir -p dist-repos/prod/dist/$tgtdir/
         fi
 	if [ $distribution_type == "devel" ]; then
-		cp final-dists/$i dist-repos/prod/dist/devel/$tgtdir/;
+		cp esgf_tarballs/$i dist-repos/prod/dist/devel/$tgtdir/;
 		cd dist-repos/prod/dist/devel/$tgtdir;
+		echo "Extracting ${i} -> $(pwd)" 
 		tar -xvzf $i && rm -f $i;
+		echo
 	else 
-		cp final-dists/$i dist-repos/prod/dist/$tgtdir/;
+		cp esgf_tarballs/$i dist-repos/prod/dist/$tgtdir/;
 		cd dist-repos/prod/dist/$tgtdir;
+		echo "Extracting ${i} -> $(pwd)"
 		tar -xvzf $i && rm -f $i;
+		echo
 	fi
 	if [ "$tgtdir" = "esgf-installer" ]; then
 		mv esg-globus* ../externals/bootstrap/
