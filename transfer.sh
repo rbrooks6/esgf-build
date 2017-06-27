@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/local/bin/bash
 declare -A dists
 dists[esgf-dashboard-dist.tgz]='esgf-dashboard'
 dists[esgf-desktop-dist.tgz]='esgf-desktop'
@@ -12,17 +12,34 @@ dists[esg-search-dist.tgz]='esg-search'
 dists[esgf-product-server-dist.tgz]='esgf-product-server'
 dists[esgf-cog-dist.tgz]='esgf-cog'
 dists[filters-dist.tgz]='filters'
-devel=1
+dists[esgf-stats-api-dist.tgz]='esgf-stats-api'
+
+
+if [[ $1 == "devel" ]]; then
+	distribution_type='devel'
+elif [[ $1 == "master" ]]; then
+	distribution_type='master'
+else
+	echo "Must choose a distribution type for repos to update (devel or master)"
+	exit
+fi
+
 for i in "${!dists[@]}"; do
 	tgtdir=${dists[$i]};
-	if [ $devel -eq 1 ]; then
-		cp final-dists/$i prod/dist/devel/$tgtdir/;
-		cd prod/dist/devel/$tgtdir;
-		uz $i && rm -f $i;
-		else 
-		cp final-dists/$i prod/dist/$tgtdir/;
-		cd prod/dist/$tgtdir;
-		uz $i && rm -f $i;
+        if [ ! -d dist-repos/prod/dist/devel/$tgtdir/ ]; then
+        	mkdir -p dist-repos/prod/dist/devel/$tgtdir/
+        fi
+        if [ ! -d dist-repos/prod/dist/$tgtdir/ ]; then
+                mkdir -p dist-repos/prod/dist/$tgtdir/
+        fi
+	if [ $distribution_type == "devel" ]; then
+		cp final-dists/$i dist-repos/prod/dist/devel/$tgtdir/;
+		cd dist-repos/prod/dist/devel/$tgtdir;
+		tar -xvzf $i && rm -f $i;
+	else 
+		cp final-dists/$i dist-repos/prod/dist/$tgtdir/;
+		cd dist-repos/prod/dist/$tgtdir;
+		tar -xvzf $i && rm -f $i;
 	fi
 	if [ "$tgtdir" = "esgf-installer" ]; then
 		mv esg-globus* ../externals/bootstrap/
