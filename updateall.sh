@@ -1,7 +1,7 @@
 #!/usr/local/bin/bash
 
 #Uses mapfile CLI tool that's part of Bash version 4
-mapfile -t fulllist < /Users/hill119/Development/esgf-build/repo_list.txt
+mapfile -t fulllist < "$(dirname -- "$0")/repo_list.txt"
 echo "fulllist: ${fulllist[*]}"
 echo
 
