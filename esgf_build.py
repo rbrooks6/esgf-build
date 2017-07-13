@@ -1,8 +1,30 @@
+#!usr/bin/env python2
 import subprocess
+import shlex
 import os
+from git import Repo
+import repo_info
+
+#repo_info.all_repo_urls
+#repo_info.repo_list
 
 def update_all(active_branch):
-    pass
+    #taglist will keep track of different versions
+    fileobject = open("taglist.txt", "w")
+    for repo in repo_info.repo_list:
+        os.chdir(repo)
+        #getting the current working directory (mimics bash pwd)
+        repo_handle = Repo(os.getcwd())
+        #changes to the active branch using checkout
+        repo_handle.git.checkout(active_branch)
+        repo_handle.remote.origin.pull()
+        #provides all the tags, reverses them (so that you can get the latest
+        #tag and then takes only the first from the list
+        latest_tag = repo_handle.tags().reverse()[0]
+        fileobject.write(latest_tag)
+        #moves up one directory
+        os.chdir("..")
+    fileobject.close()
 
 def build_all(build_list):
     pass
@@ -20,13 +42,19 @@ def esgf_upload():
     pass
 
 def main():
-    #Make a variable called all_repos that is a list of strings from the Github
-    #urls listed in allrepos.text
-
     #Use a raw_input statement to ask the user if they want to update devel or master
     #The user's answer will set the active_branch variable; must either be devel or master
+    while True:
+        active_branch = raw_input("Do you want to update devel or master branch?")
 
-    #Run the update_all(active_branch) function, passing in active_branch as an argument
+        #Run the update_all(active_branch) function, passing in active_branch as an argument
+        if active_branch.lower() not in ["devel", "master"]:
+             print "Please choose either master or devel."
+             continue
+
+        else:
+            break
+    update_all(active_branch)
 
     #Use a raw_input statement to ask which repos should be built;
     #this will set the build_list variable; If the user enters nothing, assume all repos will be built
