@@ -50,8 +50,8 @@ for i in "${fulllist[@]}"; do
 	cd $i;
 	#if the esgf-getcert is buing built then
 	if [ "$i" = "esgf-getcert" ]; then
-		##tee: redirects output to multile files , input -> standard output and any files given as arguments
-		###will be done in a subprocess
+		### pipes and uses tee to log the input to the defined log and sends it to ANT
+		##the output of ant clean is redirected as the input of the log file
 		$ANT clean 2>&1|tee $LOGDIR/$i-clean.log;
 		$ANT dist 2>&1|tee $LOGDIR/$i-build.log;
 		cd ..
@@ -64,7 +64,7 @@ for i in "${fulllist[@]}"; do
 	cd ..
 done
 
-##recursively searches for build in all repos
-##???????
+##recursively searches for build in all repos and logs the result
+##prints out all the files with build in it
 #Logs out the build result of all of the repos
 grep -R "BUILD" buildlogs/esg*-*-build.log
