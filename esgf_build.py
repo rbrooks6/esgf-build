@@ -3,6 +3,7 @@
 import subprocess
 import shlex
 import os
+import shutil
 import glob
 from distutils.spawn import find_executable
 import tarfile
@@ -10,16 +11,14 @@ import mmap
 from git import Repo
 import repo_info
 
-
-
 #TODO: create a list of repos to exclude from building
 
 def update_all(active_branch, starting_directory):
-    '''Checks each repo in the repo_list for the most updated branch '''
+    '''Checks each repo in the REPO_LIST for the most updated branch '''
     ##taglist will keep track of different versions
     print "Beginning to update directories"
     fileobject = open("taglist", "w")
-    for repo in repo_info.repo_list:
+    for repo in repo_info.REPO_LIST:
         try:
             os.chdir(starting_directory + "/" + repo)
         except OSError:
@@ -56,6 +55,7 @@ def build_all(build_list, starting_directory):
     if not os.path.exists(log_directory):
         os.makedirs(log_directory)
     for repo in build_list:
+        #TODO: add loading bar while ant runs?
         #TODO: include installer in build script for final version
         if repo == 'esgf-installer':
             continue
@@ -125,30 +125,51 @@ def build_all(build_list, starting_directory):
                 return log
 
 def create_esgf_tarballs(starting_directory):
-    #get components from the repos to add to the tarball
-    for repo in repo_info.repo_list:
+    #TODO: how should I be using the dists that were created?
+    ##### is adding the repos to the tarball correct? or should i be using something from build func?
+    #creating a directory to save the tarballs to
+    tarball_dir = starting_directory + "/esgf_tarballs"
+    print "Attempting to remove old tarballs."
+    try:
+        shutil.rmtree(tarball_dir)
+        print "Old tarballs removed, beginning to create tarballs."
+    except:
+        print "No old tarballs located, beginning to create tarballs."
+    os.makedirs(tarball_dir)
+    for repo in repo_info.REPO_LIST:
+        #each tarball will have it's own directory in the main tarball directory
+        local_tarball_dir = tarball_dir + "/" + repo
+        #the path to the repo to create a tar of
         repo_path = starting_directory + "/" + repo
         repo_path = os.path.realpath(repo_path)
-        with tarfile.open(repo + "_tar", "w:gz") as tar:
+        #changing directory to that repo to tar it
+        #os.chdir(repo_path)
+        with tarfile.open(local_tarball_dir + ".tgz", "w:gz") as tar:
             tar.add(repo_path)
-
-    #TODO: remove old tarballs?
-    #TODO: make a directory for the tarballs
+        #os.chdir("..")
     #TODO: find out what script_major_version script_version and script_release are
 
 
 def create_local_mirror_directory(active_branch):
+    #if active_branch is devel then save to dist folder for devel
+    #if active_branch is master then save to dist folder
+    #use VM to test????
+    #how do this work?
     pass
 
 def update_esg_node(active_branch):
+    #set installer directory and last push directory depending on it
+    ##active_branch is devel or master
     pass
 
 def esgf_upload():
+    #use coffee to upload
     pass
 
 
 def main():
     '''User prompted for build specifications '''
+    build_list = []
     #Use a raw_input statement to ask the user if they want to update devel or master
     #The user's answer will set the active_branch variable; must either be devel or master
     while True:
@@ -182,18 +203,35 @@ def main():
     #Use a raw_input statement to ask which repos should be built;
     #this will set the build_list variable; If the user enters nothing,
     #assume all repos will be built
+    #list a menu to select repos to build
+    print repo_info.REPO_MENU
     while True:
-        build_list = raw_input("Which repositories will be built? (Hit [Enter] for all) ")
-
-        if not build_list:
+        import pdb; pdb.set_trace()
+        #user selects what repos they want built
+        select_repo = raw_input("Which repositories will be built? (Hit [Enter] for all) ")
+        #if the user does not enter anything, ask about build all
+        if not select_repo:
             all_repo_q = raw_input("Do you want to build all repositories? (Y or YES) ")
+            #if they do not say yes, ask them again which repos will be built
             if all_repo_q.lower() not in ["yes", "y"]:
                 print "Not a valid response."
                 continue
-
+            #if they do say yes then the build list is all the repos
             else:
-                build_list = repo_info.repo_list
+                build_list = repo_info.REPO_LIST
                 break
+        #if the user does enter something, convert to list of ints
+        else:
+            select_repo = select_repo.split(',')
+            select_repo = map(int, select_repo)
+            try:
+                for repo in select_repo:
+                    #append the menu items based on the number selected
+                    build_list.append(repo_info.REPO_LIST[repo])
+            #if append fails then some incorrect value must have been entered
+            except:
+                print "Invalid entry, please enter repos to build."
+                continue
     build_all(build_list, starting_directory)
 
     #Use a raw_input statement to ask the user to set the script_major_version, script_release, and
