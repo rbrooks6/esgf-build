@@ -4,17 +4,15 @@ import subprocess
 import shlex
 import os
 import glob
-import time
 from distutils.spawn import find_executable
 import tarfile
 import mmap
 from git import Repo
 import repo_info
 
-#TODO: create a list of repos to exclude from building
 
-#repo_info.all_repo_urls
-#repo_info.repo_list
+
+#TODO: create a list of repos to exclude from building
 
 def update_all(active_branch, starting_directory):
     '''Checks each repo in the repo_list for the most updated branch '''
@@ -48,11 +46,10 @@ def build_all(build_list, starting_directory):
     '''Takes a list of repositories to build, and uses ant to build them '''
     #use subprocess for ANT
     #locate the paths for ANT, java, and python
+    #TODO: use subprocess w/ bash command to set the java and python paths
     ant_path = find_executable('ant')
-    java_path = find_executable('java')
-    python_path = find_executable('python')
-
-    #TODO: find out what should be done with these paths?
+    #java_path = find_executable('java')
+    #python_path = find_executable('python')
     #logs will be saved at the starting directory in the folder buildlogs
     log_directory = starting_directory + "/buildlogs"
     #creates a directory for the logs in the system if one does not exist
@@ -86,15 +83,16 @@ def build_all(build_list, starting_directory):
             os.chdir("..")
             continue
         if repo == 'esgf-stats-api':
-            # clean_log = log_directory + "/" + repo + "-clean.log"
-            # with open(clean_log, "w") as fsapi1:
-            #     ant_cleanall = subprocess.check_output(shlex.split('{ant} clean_all'.format(ant=ant_path)))
-            #     fsapi1.write(ant_cleanall)
-            # build_log = log_directory + "/" + repo + "-build.log"
-            # with open(build_log, "w") as fsapi2:
-            #     ant_make = subprocess.check_output(shlex.split("{ant} make_dist".format(ant = ant_path)))
-            #     fsapi2.write(ant_make)
-            # os.chdir('..')
+            clean_log = log_directory + "/" + repo + "-clean.log"
+            with open(clean_log, "w") as fsapi1:
+                ant_cleanall = subprocess.check_output(shlex.split('{ant} clean_all'.format(ant=ant_path)))
+                fsapi1.write(ant_cleanall)
+            build_log = log_directory + "/" + repo + "-build.log"
+            with open(build_log, "w") as fsapi2:
+                ant_make = subprocess.check_output(shlex.split("{ant} make_dist".format(ant = ant_path)))
+                fsapi2.write(ant_make)
+            os.chdir('..')
+            #print "Repo not built:"
             continue
         #calls and logs the ant clean_all comamnd
         clean_log = log_directory + "/" + repo + "-clean.log"
@@ -109,8 +107,8 @@ def build_all(build_list, starting_directory):
         #calls and logs the ant make_dist command
         build_log = log_directory + "/" + repo + "-build.log"
         with open(build_log, "w") as file3:
-                ant_make = subprocess.check_output(shlex.split("{ant} make_dist".format(ant = ant_path)))
-                file3.write(ant_make)
+            ant_make = subprocess.check_output(shlex.split("{ant} make_dist".format(ant = ant_path)))
+            file3.write(ant_make)
         os.chdir("..")
     print "Repository builds complete."
 
@@ -126,9 +124,18 @@ def build_all(build_list, starting_directory):
             if mmap_object.find('BUILD') != -1:
                 return log
 
-def create_esgf_tarballs():
-    #import tarfile
-    pass
+def create_esgf_tarballs(starting_directory):
+    #get components from the repos to add to the tarball
+    for repo in repo_info.repo_list:
+        repo_path = starting_directory + "/" + repo
+        repo_path = os.path.realpath(repo_path)
+        with tarfile.open(repo + "_tar", "w:gz") as tar:
+            tar.add(repo_path)
+
+    #TODO: remove old tarballs?
+    #TODO: make a directory for the tarballs
+    #TODO: find out what script_major_version script_version and script_release are
+
 
 def create_local_mirror_directory(active_branch):
     pass
@@ -191,11 +198,13 @@ def main():
 
     #Use a raw_input statement to ask the user to set the script_major_version, script_release, and
     #script_version
-    script_major_version = raw_input("Please set the script_major_version: ")
-    script_release = raw_input("Please set the script_release: ")
-    script_version = raw_input("Please set the script version: ")
-
+    #
+    # script_major_version = raw_input("Please set the script_major_version: ")
+    # script_release = raw_input("Please set the script_release: ")
+    # script_version = raw_input("Please set the script version: ")
+    #
     #execute the create_esgf_tarballs() function
+    create_esgf_tarballs(starting_directory)
 
     #execute the create_local_mirror_directory(active_branch), passing in
     #active_branch as an argument
