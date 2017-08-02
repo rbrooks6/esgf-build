@@ -18,14 +18,14 @@ Readme doc for setting up build environment and optionally the rsync mirror.
   (either devel or master)
 4. Enter the path to the directory containing repositories on the system.
     * Example:
-      ``` shell
-      Please provide the path to the repositories on your system: /Users/username123/repositories
-      ```
+    ``` shell
+    Please provide the path to the repositories on your system: /Users/username123/repositories
+    ```
 5. After the repositories update a menu of repos to build will be listed.
     * Select from the menu by listing the number of the repos to be built.
-        * Example:
-        ``` shell
-        Which repositories will be built? (Hit [Enter] for all) 0, 3, 4
-        ```
+    * Example:
+    ``` shell
+    Which repositories will be built? (Hit [Enter] for all) 0, 3, 4
+    ```
     * or Hit [ENTER] to select all
 6. Entries will begin to build
