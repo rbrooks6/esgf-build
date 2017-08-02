@@ -148,13 +148,13 @@ def create_esgf_tarballs(starting_directory):
             tar.add(repo_path)
         #os.chdir("..")
     #TODO: find out what script_major_version script_version and script_release are
+    ########## user can specify a version to their script, where does this get saved
 
 
 def create_local_mirror_directory(active_branch):
-    #if active_branch is devel then save to dist folder for devel
-    #if active_branch is master then save to dist folder
-    #use VM to test????
-    #how do this work?
+    #if active_branch is devel then copy to dist folder for devel
+    #if active_branch is master then copy to dist folder
+    #untar in dist and delete tarballs
     pass
 
 def update_esg_node(active_branch):
@@ -205,8 +205,8 @@ def main():
     #assume all repos will be built
     #list a menu to select repos to build
     print repo_info.REPO_MENU
+    import pdb; pdb.set_trace()
     while True:
-        import pdb; pdb.set_trace()
         #user selects what repos they want built
         select_repo = raw_input("Which repositories will be built? (Hit [Enter] for all) ")
         #if the user does not enter anything, ask about build all
@@ -222,14 +222,19 @@ def main():
                 break
         #if the user does enter something, convert to list of ints
         else:
-            select_repo = select_repo.split(',')
-            select_repo = map(int, select_repo)
             try:
-                for repo in select_repo:
-                    #append the menu items based on the number selected
-                    build_list.append(repo_info.REPO_LIST[repo])
-            #if append fails then some incorrect value must have been entered
-            except:
+                select_repo = select_repo.split(',')
+                select_repo = map(int, select_repo)
+                try:
+                    for repo in select_repo:
+                        #append the menu items based on the number selected
+                        build_list.append(repo_info.REPO_LIST[repo])
+                    break
+                #if append fails then some incorrect value must have been entered
+                except IndexError:
+                    print "Invalid entry, please enter repos to build."
+                    continue
+            except ValueError:
                 print "Invalid entry, please enter repos to build."
                 continue
     build_all(build_list, starting_directory)

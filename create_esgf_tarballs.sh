@@ -30,7 +30,7 @@ components[esg-orp]='bin/esg-orp INSTALL README LICENSE'
 components[esgf-getcert]='INSTALL README LICENSE'
 components[esg-search]='bin/esg-search bin/esgf-crawl bin/esgf-optimize-index etc/conf/jetty/jetty.xml-auth etc/conf/jetty/realm.properties etc/conf/solr/schema.xml etc/conf/solr/solrconfig.xml etc/conf/solr/solrconfig.xml-replica etc/conf/solr/solr.xml-master etc/conf/solr/solr.xml-slave etc/conf/jetty/webdefault.xml-auth INSTALL README LICENSE'
 components[esgf-product-server]='esg-product-server'
-components[filters]='esg-access-logging-filter esg-drs-resolving-filter esg-security-las-ip-filter esg-security-tokenless-filters' 
+components[filters]='esg-access-logging-filter esg-drs-resolving-filter esg-security-las-ip-filter esg-security-tokenless-filters'
 components[esgf-cog]='esg-cog'
 components[esgf-stats-api]='bin/esg_stats-api_v2 dist/esgf-stats-api.war'
 rm -rf esgf_tarballs
@@ -53,17 +53,17 @@ for i in "${!components[@]}"; do
 	for file in ${components[$i]}; do
 		if [ ! -e $i/$file ]; then
 			echo "File $i/$file not found";
-			continue;	
+			continue;
 		else  
 			echo "File $i/$file OK";
 			cp $i/$file temp-dists
 		fi
 	done
 	cd temp-dists;
-	for f in `ls`; do 
-		if echo $f|grep md5 >/dev/null; then 
-			continue; 
-		else 
+	for f in `ls`; do
+		if echo $f|grep md5 >/dev/null; then
+			continue;
+		else
 			if [ "$f" = "esg-node" ]; then
 				sed -i .backup "s/\(script_version=\"$quotedsv\"\)/script_version=\"$script_version\"/" esg-node;
 				sed -i .backup "s/\(script_release=\"$quotedsr\"\)/script_release=\"$script_release\"/" esg-node;
@@ -72,7 +72,7 @@ for i in "${!components[@]}"; do
 			if [ "$f" = "esg-bootstrap" ]; then
 				sed -i .backup "s/\(script_maj_version=\"$quotedmj\"\)/script_maj_version=\"$script_maj_version\"/" esg-bootstrap;
 			fi
-			md5sum $f >$f.md5; 
+			md5sum $f >$f.md5;
 		fi
 	 done
 	if [ "$i" = "esgf-installer" ]; then
