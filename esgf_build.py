@@ -5,6 +5,7 @@ import shlex
 import os
 import shutil
 import glob
+import errno
 from distutils.spawn import find_executable
 import tarfile
 import mmap
@@ -73,46 +74,40 @@ def build_all(build_list, starting_directory):
             #calls ant_clean for esgf-getcert
             clean_log = log_directory + "/" + repo + "-clean.log"
             with open(clean_log, "w") as fgc1:
-                ant_clean = subprocess.check_output(shlex.split('{ant} clean'.format(ant=ant_path)))
-                fgc1.write(ant_clean)
+                stream_subprocess_output('{ant} clean'.format(ant=ant_path), fgc1)
             #calls ant dist for esgf-getcert
             build_log = log_directory + "/" + repo + "-build.log"
             with open(build_log, "w") as fgc2:
-                ant_dist = subprocess.check_output(shlex.split('{ant} dist'.format(ant=ant_path)))
-                fgc2.write(ant_dist)
+                stream_subprocess_output('{ant} dist'.format(ant=ant_path), fgc2)
+
             os.chdir("..")
             continue
         if repo == 'esgf-stats-api':
             clean_log = log_directory + "/" + repo + "-clean.log"
             with open(clean_log, "w") as fsapi1:
-                ant_cleanall = subprocess.check_output(shlex.split('{ant} clean_all'.format(ant=ant_path)))
-                fsapi1.write(ant_cleanall)
+                stream_subprocess_output('{ant} clean_all'.format(ant=ant_path), fsapi1)
             build_log = log_directory + "/" + repo + "-build.log"
             with open(build_log, "w") as fsapi2:
-                ant_make = subprocess.check_output(shlex.split("{ant} make_dist".format(ant = ant_path)))
-                fsapi2.write(ant_make)
+                stream_subprocess_output("{ant} make_dist".format(ant = ant_path), fsapi2)
             os.chdir('..')
             #print "Repo not built:"
             continue
         #calls and logs the ant clean_all comamnd
         clean_log = log_directory + "/" + repo + "-clean.log"
         with open(clean_log, "w") as file1:
-            ant_cleanall = subprocess.check_output(shlex.split('{ant} clean_all'.format(ant=ant_path)))
-            file1.write(ant_cleanall)
+            stream_subprocess_output('{ant} clean_all'.format(ant=ant_path), file1)
         #calls and logs the ant pull command
         pull_log = log_directory + "/" + repo + "-pull.log"
         with open(pull_log, "w") as file2:
-            ant_pull = subprocess.check_output(shlex.split('{ant} pull'.format(ant = ant_path)))
-            file2.write(ant_pull)
+            stream_subprocess_output('{ant} pull'.format(ant = ant_path), file2)
         #calls and logs the ant make_dist command
         build_log = log_directory + "/" + repo + "-build.log"
         with open(build_log, "w") as file3:
-            ant_make = subprocess.check_output(shlex.split("{ant} make_dist".format(ant = ant_path)))
-            file3.write(ant_make)
+            stream_subprocess_output("{ant} make_dist".format(ant = ant_path), file3)
         os.chdir("..")
-    print "Repository builds complete."
+    print "\nRepository builds complete."
 
-    print "Finding esgf log files."
+    print "Finding esgf log files.\n"
     #uses glob to find all esgf log files
     #then iterates over the log files , opens them
     #and uses a mmap object to search through for BUILD reference
@@ -124,10 +119,11 @@ def build_all(build_list, starting_directory):
             if mmap_object.find('BUILD') != -1:
                 return log
 
-def create_esgf_tarballs(starting_directory):
+def create_esgf_tarballs(starting_directory, build_list):
     #TODO: how should I be using the dists that were created?
     ##### is adding the repos to the tarball correct? or should i be using something from build func?
     #creating a directory to save the tarballs to
+    #import pdb; pdb.set_trace()
     tarball_dir = starting_directory + "/esgf_tarballs"
     print "Attempting to remove old tarballs."
     try:
@@ -136,26 +132,34 @@ def create_esgf_tarballs(starting_directory):
     except:
         print "No old tarballs located, beginning to create tarballs."
     os.makedirs(tarball_dir)
-    for repo in repo_info.REPO_LIST:
+    #TODO: pass in the build_list to only build tarballs for specified repos
+    for repo in build_list:
         #each tarball will have it's own directory in the main tarball directory
         local_tarball_dir = tarball_dir + "/" + repo
         #the path to the repo to create a tar of
         repo_path = starting_directory + "/" + repo
         repo_path = os.path.realpath(repo_path)
         #changing directory to that repo to tar it
-        #os.chdir(repo_path)
+        os.chdir(tarball_dir)
         with tarfile.open(local_tarball_dir + ".tgz", "w:gz") as tar:
             tar.add(repo_path)
-        #os.chdir("..")
+        print repo + " tarball created."
+        os.chdir("..")
     #TODO: find out what script_major_version script_version and script_release are
     ########## user can specify a version to their script, where does this get saved
 
-
-def create_local_mirror_directory(active_branch):
+def create_local_mirror_directory(active_branch, starting_directory):
+    '''Creates a directory for binaries and untars to it'''
     #if active_branch is devel then copy to dist folder for devel
     #if active_branch is master then copy to dist folder
     #untar in dist and delete tarballs
-    pass
+    mkdir_p('esgf_bin')
+    os.chdir('esgf_tarballs')
+    for tarball in os.listdir(os.getcwd()):
+        tar = tarfile.open(tarball)
+        print "tarball: ", tarball
+        tar.extractall(os.path.join(starting_directory, 'esgf_bin'))
+        tar.close()
 
 def update_esg_node(active_branch):
     #set installer directory and last push directory depending on it
@@ -163,9 +167,29 @@ def update_esg_node(active_branch):
     pass
 
 def esgf_upload():
-    #use coffee to upload
+    #use coffee in a subprocess to upload?
     pass
 
+def stream_subprocess_output(command_string, file_handle):
+    ''' Print out the stdout of the subprocess in real time '''
+    process = subprocess.Popen(shlex.split(command_string), stdout=subprocess.PIPE)
+    with process.stdout:
+        for line in iter(process.stdout.readline, b''):
+            print line,
+            file_handle.write(line)
+    # wait for the subprocess to exit
+    process.wait()
+
+def mkdir_p(path, mode=0777):
+    '''Makes directory, passes if directory already exists'''
+    try:
+        os.makedirs(path, mode)
+    except OSError as exc:  # Python >2.5
+        if exc.errno == errno.EEXIST and os.path.isdir(path):
+            print "{path} already exists".format(path=path)
+            pass
+        else:
+            raise
 
 def main():
     '''User prompted for build specifications '''
@@ -184,12 +208,15 @@ def main():
 
     while True:
         #check if the directory exists, if not build it then get absolute path
-        starting_directory = raw_input("Please provide the path to the repositories on your system: ").strip()
+        starting_directory = raw_input("Please provide the path to the"
+                                       " repositories on your system: ").strip()
         if os.path.isdir(os.path.realpath(starting_directory)):
             starting_directory = os.path.realpath(starting_directory)
             break
         else:
-            create_path_q = raw_input("The path does not exist. Do you want " + starting_directory + " to be created? (Y or YES)")
+            create_path_q = raw_input("The path does not exist. Do you want "
+                                      + starting_directory
+                                      + " to be created? (Y or YES)")
             if create_path_q.lower() not in ["yes", "y"]:
                 print "Not a valid response. Directory not created."
                 continue
@@ -205,7 +232,6 @@ def main():
     #assume all repos will be built
     #list a menu to select repos to build
     print repo_info.REPO_MENU
-    import pdb; pdb.set_trace()
     while True:
         #user selects what repos they want built
         select_repo = raw_input("Which repositories will be built? (Hit [Enter] for all) ")
@@ -241,17 +267,30 @@ def main():
 
     #Use a raw_input statement to ask the user to set the script_major_version, script_release, and
     #script_version
-    #
-    # script_major_version = raw_input("Please set the script_major_version: ")
-    # script_release = raw_input("Please set the script_release: ")
-    # script_version = raw_input("Please set the script version: ")
-    #
+    #print the
+    #TODO: develop an option to go back to using default settings
+    print "Default Script Settings: "
+    for val in repo_info.SCRIPT_INFO:
+        print val + " = " + repo_info.SCRIPT_INFO[val]
+
+    default_script_q = raw_input("\nDo you want to use the default script settings? (Y or YES): ")
+    if default_script_q.lower() not in ['y', 'yes']:
+        script_major_version = raw_input("Please set the script_major_version: ")
+        script_release = raw_input("Please set the script_release: ")
+        script_version = raw_input("Please set the script version: ")
+    else:
+        print "Using default script settings.\n"
+        script_major_version = repo_info.SCRIPT_INFO['script_major_version']
+        script_release = repo_info.SCRIPT_INFO['script_release']
+        script_version = repo_info.SCRIPT_INFO['script_version']
+
+    print "Script settings set."
     #execute the create_esgf_tarballs() function
-    create_esgf_tarballs(starting_directory)
+    create_esgf_tarballs(starting_directory, build_list)
 
     #execute the create_local_mirror_directory(active_branch), passing in
     #active_branch as an argument
-
+    create_local_mirror_directory(active_branch, starting_directory)
     #execute update_esg_node(active_branch), passing in active_branch as an argument
 
     #execute esgf_upload()

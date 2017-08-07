@@ -28,6 +28,10 @@ REPO_LIST = [
     'esgf-stats-api'
 ]
 
+SCRIPT_INFO = {'script_major_version': '2.5',
+               'script_release': 'Midgard',
+               'script_version': 'v2.5.8-master-release'}
+
 REPO_MENU = 'Repository menu:\n'\
 '----------------------------------------\n'\
 '0: esgf-dashboard\n'\
