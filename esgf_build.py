@@ -88,7 +88,7 @@ def build_all(build_list, starting_directory):
                 stream_subprocess_output('{ant} clean_all'.format(ant=ant_path), fsapi1)
             build_log = log_directory + "/" + repo + "-build.log"
             with open(build_log, "w") as fsapi2:
-                stream_subprocess_output("{ant} make_dist".format(ant = ant_path), fsapi2)
+                stream_subprocess_output("{ant} make_dist".format(ant=ant_path), fsapi2)
             os.chdir('..')
             #print "Repo not built:"
             continue
@@ -99,11 +99,11 @@ def build_all(build_list, starting_directory):
         #calls and logs the ant pull command
         pull_log = log_directory + "/" + repo + "-pull.log"
         with open(pull_log, "w") as file2:
-            stream_subprocess_output('{ant} pull'.format(ant = ant_path), file2)
+            stream_subprocess_output('{ant} pull'.format(ant=ant_path), file2)
         #calls and logs the ant make_dist command
         build_log = log_directory + "/" + repo + "-build.log"
         with open(build_log, "w") as file3:
-            stream_subprocess_output("{ant} make_dist".format(ant = ant_path), file3)
+            stream_subprocess_output("{ant} make_dist".format(ant=ant_path), file3)
         os.chdir("..")
     print "\nRepository builds complete."
 
@@ -121,7 +121,8 @@ def build_all(build_list, starting_directory):
 
 def create_esgf_tarballs(starting_directory, build_list):
     #TODO: how should I be using the dists that were created?
-    ##### is adding the repos to the tarball correct? or should i be using something from build func?
+    ##### is adding the repos to the tarball correct?
+    ##### or should i be using something from build func?
     #creating a directory to save the tarballs to
     #import pdb; pdb.set_trace()
     tarball_dir = starting_directory + "/esgf_tarballs"
@@ -135,14 +136,19 @@ def create_esgf_tarballs(starting_directory, build_list):
     #TODO: pass in the build_list to only build tarballs for specified repos
     for repo in build_list:
         #each tarball will have it's own directory in the main tarball directory
-        local_tarball_dir = tarball_dir + "/" + repo
+        local_tarball_dir = os.path.join(tarball_dir, repo)
         #the path to the repo to create a tar of
-        repo_path = starting_directory + "/" + repo
+        repo_path = os.path.join(starting_directory, repo)
+        print "current directory:", os.getcwd()
+        print "current directory contents:", os.listdir(os.getcwd())
+        print "starting_directory:", starting_directory
+        print "repo:", repo
         repo_path = os.path.realpath(repo_path)
+        print "repo_path:", repo_path
         #changing directory to that repo to tar it
         os.chdir(tarball_dir)
         with tarfile.open(local_tarball_dir + ".tgz", "w:gz") as tar:
-            tar.add(repo_path)
+            tar.add("../" + repo)
         print repo + " tarball created."
         os.chdir("..")
     #TODO: find out what script_major_version script_version and script_release are
@@ -153,21 +159,38 @@ def create_local_mirror_directory(active_branch, starting_directory):
     #if active_branch is devel then copy to dist folder for devel
     #if active_branch is master then copy to dist folder
     #untar in dist and delete tarballs
-    mkdir_p('esgf_bin')
+    mkdir_p('../esgf_bin')
     os.chdir('esgf_tarballs')
     for tarball in os.listdir(os.getcwd()):
         tar = tarfile.open(tarball)
         print "tarball: ", tarball
-        tar.extractall(os.path.join(starting_directory, 'esgf_bin'))
+        tar.extractall("../esgf_bin")
         tar.close()
 
-def update_esg_node(active_branch):
-    #set installer directory and last push directory depending on it
-    ##active_branch is devel or master
+def update_esg_node(active_branch, starting_directory, script_major_version,
+                    script_release, script_version):
+    srcdir = 'esgf-installer'
+
+    if active_branch == 'devel':
+        installerdir = (starting_directory
+                        +'/dist-repos/prod/dist/devel/esgf-installer/'
+                        + script_major_version)
+    else:
+        installerdir = (starting_directory
+                        + '/dist-repos/prod/dist/esgf-installer/'
+                        + script_major_version)
+    #TODO: use script info here to update node w/ proper info
+    #set installer directory and last push directory depending on it (???)
+
+    #set source directory and installer directory
+    #active_branch is devel or master
+    #replace old node references to past versions/release/etc to updated ones
+    #use md5 to make sure the right thing is being downloaded
+
     pass
 
 def esgf_upload():
-    #use coffee in a subprocess to upload?
+    #use rsync to upload
     pass
 
 def stream_subprocess_output(command_string, file_handle):
@@ -269,9 +292,10 @@ def main():
     #script_version
     #print the
     #TODO: develop an option to go back to using default settings
-    print "Default Script Settings: "
-    for val in repo_info.SCRIPT_INFO:
-        print val + " = " + repo_info.SCRIPT_INFO[val]
+    print ("Default Script Settings: \n"
+           + 'SCRIPT_MAJOR_VERSION = ' + repo_info.SCRIPT_MAJOR_VERSION + "\n"
+           + 'SCRIPT_RELEASE = ' + repo_info.SCRIPT_RELEASE + "\n"
+           + 'SCRIPT_VERSION = ' + repo_info.SCRIPT_VERSION)
 
     default_script_q = raw_input("\nDo you want to use the default script settings? (Y or YES): ")
     if default_script_q.lower() not in ['y', 'yes']:
@@ -280,9 +304,9 @@ def main():
         script_version = raw_input("Please set the script version: ")
     else:
         print "Using default script settings.\n"
-        script_major_version = repo_info.SCRIPT_INFO['script_major_version']
-        script_release = repo_info.SCRIPT_INFO['script_release']
-        script_version = repo_info.SCRIPT_INFO['script_version']
+        script_major_version = repo_info.SCRIPT_MAJOR_VERSION
+        script_release = repo_info.SCRIPT_RELEASE
+        script_version = repo_info.SCRIPT_VERSION
 
     print "Script settings set."
     #execute the create_esgf_tarballs() function
@@ -292,7 +316,8 @@ def main():
     #active_branch as an argument
     create_local_mirror_directory(active_branch, starting_directory)
     #execute update_esg_node(active_branch), passing in active_branch as an argument
-
+    update_esg_node(active_branch, starting_directory, script_major_version
+                    , script_release, script_version)
     #execute esgf_upload()
 
 if __name__ == '__main__':

@@ -1,3 +1,8 @@
+#SCRIPT DEFAULT INFO
+SCRIPT_MAJOR_VERSION = '2.5'
+SCRIPT_RELEASE = 'Midgard'
+SCRIPT_VERSION = 'v2.5.8-master-release'
+
 ALL_REPO_URLS = [
     'https://github.com/ESGF/esgf-dashboard.git',
     'https://github.com/ESGF/esgf-desktop.git',
@@ -27,11 +32,7 @@ REPO_LIST = [
     'esg-search',
     'esgf-stats-api'
 ]
-
-SCRIPT_INFO = {'script_major_version': '2.5',
-               'script_release': 'Midgard',
-               'script_version': 'v2.5.8-master-release'}
-
+#
 REPO_MENU = 'Repository menu:\n'\
 '----------------------------------------\n'\
 '0: esgf-dashboard\n'\
