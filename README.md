@@ -27,4 +27,13 @@ clone new ones
     0, 3, 4
     ```
     * or Hit [ENTER] to select all
-6. Entries will begin to build
+6. Old tarballs will be purged where applicable, and new tarballs will attempt to build.
+  If successful, "BUILD SUCCESSFUL" will print.
+7. If the script information is different than the default, enter script info to
+  be used to update node.
+8. Local mirror directory will be created if it does not already exist, and tarballs will be extracted to it.
+
+COMING SOON
+------------
+9. Node will be updated with script settings and binaries to upload are validated.
+10. Upload to coffee server.

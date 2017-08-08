@@ -302,12 +302,12 @@ def main():
         script_release = raw_input("Please set the script_release: ")
         script_version = raw_input("Please set the script version: ")
     else:
-        print "Using default script settings.\n"
+        print "Using default script settings."
         script_major_version = repo_info.SCRIPT_MAJOR_VERSION
         script_release = repo_info.SCRIPT_RELEASE
         script_version = repo_info.SCRIPT_VERSION
 
-    print "Script settings set."
+    print "Script settings set.\n"
     #execute the create_esgf_tarballs() function
     create_esgf_tarballs(starting_directory, build_list)
 
