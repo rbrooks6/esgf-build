@@ -17,7 +17,7 @@ import repo_info
 def update_all(active_branch, starting_directory):
     '''Checks each repo in the REPO_LIST for the most updated branch '''
     ##taglist will keep track of different versions
-    print "Beginning to update directories"
+    print "Beginning to update directories."
     fileobject = open("taglist", "w")
     for repo in repo_info.REPO_LIST:
         try:
@@ -154,12 +154,16 @@ def create_local_mirror_directory(active_branch, starting_directory):
     #if active_branch is devel then copy to dist folder for devel
     #if active_branch is master then copy to dist folder
     #untar in dist and delete tarballs
+    print "Creating local mirrror directory."
+    #TODO: realpath stuff
     mkdir_p('../esgf_bin')
     os.chdir('esgf_tarballs')
+    #goes to each tarball listed in the tarballs directory
     for tarball in os.listdir(os.getcwd()):
         tar = tarfile.open(tarball)
-        tar.extractall("../esgf_bin/")
+        tar.extractall(path="../esgf_bin")
         tar.close()
+    print "Tarballs extracted to directory."
 
 def update_esg_node(active_branch, starting_directory, script_major_version,
                     script_release, script_version):

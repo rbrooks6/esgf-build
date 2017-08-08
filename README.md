@@ -2,11 +2,10 @@
 ### What you will need:
 1. Path to directory with repositories
     * Purge and clone script can be used to purge any existing repositories, and
-  purge new ones
+clone new ones
 2. Dependencies installed:
     * Python 2.7
     * Apache Ant
-3. Script major version, script release, and script version for the build
 
 ### To begin:
 1. Navigate to the esgf-build repo in the terminal
