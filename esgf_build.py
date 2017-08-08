@@ -60,7 +60,6 @@ def build_all(build_list, starting_directory):
         #TODO: include installer in build script for final version
         if repo == 'esgf-installer':
             continue
-        #TODO: add esgf-publisher-resources and publisher to a list of exclusions
         if repo == 'esgf-publisher-resources':
             continue
         if repo == 'esg-publisher':
@@ -125,6 +124,7 @@ def create_esgf_tarballs(starting_directory, build_list):
     ##### or should i be using something from build func?
     #creating a directory to save the tarballs to
     #import pdb; pdb.set_trace()
+
     tarball_dir = starting_directory + "/esgf_tarballs"
     print "Attempting to remove old tarballs."
     try:
@@ -139,20 +139,15 @@ def create_esgf_tarballs(starting_directory, build_list):
         local_tarball_dir = os.path.join(tarball_dir, repo)
         #the path to the repo to create a tar of
         repo_path = os.path.join(starting_directory, repo)
-        print "current directory:", os.getcwd()
-        print "current directory contents:", os.listdir(os.getcwd())
-        print "starting_directory:", starting_directory
-        print "repo:", repo
         repo_path = os.path.realpath(repo_path)
-        print "repo_path:", repo_path
         #changing directory to that repo to tar it
+        #import pdb; pdb.set_trace()
         os.chdir(tarball_dir)
         with tarfile.open(local_tarball_dir + ".tgz", "w:gz") as tar:
-            tar.add("../" + repo)
+            #tar.add("../" + repo)
+            tar.add(repo_path, arcname=repo)
         print repo + " tarball created."
         os.chdir("..")
-    #TODO: find out what script_major_version script_version and script_release are
-    ########## user can specify a version to their script, where does this get saved
 
 def create_local_mirror_directory(active_branch, starting_directory):
     '''Creates a directory for binaries and untars to it'''
@@ -163,8 +158,7 @@ def create_local_mirror_directory(active_branch, starting_directory):
     os.chdir('esgf_tarballs')
     for tarball in os.listdir(os.getcwd()):
         tar = tarfile.open(tarball)
-        print "tarball: ", tarball
-        tar.extractall("../esgf_bin")
+        tar.extractall("../esgf_bin/")
         tar.close()
 
 def update_esg_node(active_branch, starting_directory, script_major_version,
@@ -279,10 +273,11 @@ def main():
                         #append the menu items based on the number selected
                         build_list.append(repo_info.REPO_LIST[repo])
                     break
-                #if append fails then some incorrect value must have been entered
+                #if append fails then a value not in index
                 except IndexError:
                     print "Invalid entry, please enter repos to build."
                     continue
+            #if mapping fails, then an incorrect value must have been entered
             except ValueError:
                 print "Invalid entry, please enter repos to build."
                 continue
@@ -316,8 +311,8 @@ def main():
     #active_branch as an argument
     create_local_mirror_directory(active_branch, starting_directory)
     #execute update_esg_node(active_branch), passing in active_branch as an argument
-    update_esg_node(active_branch, starting_directory, script_major_version
-                    , script_release, script_version)
+    #update_esg_node(active_branch, starting_directory, script_major_version
+    #                , script_release, script_version)
     #execute esgf_upload()
 
 if __name__ == '__main__':

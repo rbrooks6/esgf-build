@@ -5,7 +5,7 @@ from git import Repo
 import os
 import re
 
-#TODO: remove esgf installer from repo list when not on personal computer
+#TODO: do not pass esgf-installer when not on personal computer
 
 #Search for and remove appropriate repos
 for repo in repo_info.REPO_LIST:
