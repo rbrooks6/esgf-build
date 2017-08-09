@@ -180,6 +180,15 @@ def update_esg_node(active_branch, starting_directory, script_major_version,
     #TODO: use script info here to update node w/ proper info
     #set installer directory and last push directory depending on it (???)
 
+    ########
+    #starting_directory.git.checkout(active_branch)
+
+    #starting_directory.remotes.origin.pull()
+    ########
+
+    #####TODO: use index @ -1 to find the last element of a list
+
+
     #set source directory and installer directory
     #active_branch is devel or master
     #replace old node references to past versions/release/etc to updated ones
@@ -297,7 +306,7 @@ def main():
            + 'SCRIPT_VERSION = ' + repo_info.SCRIPT_VERSION)
 
     default_script_q = raw_input("\nDo you want to use the default script settings? (Y or YES): ")
-    if default_script_q.lower() not in ['y', 'yes']:
+    if default_script_q.lower() not in ['y', 'yes', '\n']:
         script_major_version = raw_input("Please set the script_major_version: ")
         script_release = raw_input("Please set the script_release: ")
         script_version = raw_input("Please set the script version: ")

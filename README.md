@@ -2,13 +2,14 @@
 ### What you will need:
 1. Path to directory with repositories
     * Purge and clone script can be used to purge any existing repositories, and
-clone new ones
+clone new ones.
+    * In the terminal, typing pwd in the directory of repositories will return the path.
 2. Dependencies installed:
     * Python 2.7
     * Apache Ant
 
 ### To begin:
-1. Navigate to the esgf-build repo in the terminal
+1. Navigate to the esgf-build repo in the terminal.
 2. Run *esgf_build.py* by typing:
     ``` shell
     python esgf_build.py
@@ -20,17 +21,16 @@ clone new ones
     ``` shell
     Users/username123/repositories
     ```
-5. After the repositories update a menu of repos to build will be listed.
-    * Select from the menu by listing the number of the repos to be built.
+5. After the repositories update, then a menu of repos to build will be listed.
+    * Type the index of the repo as shown in the menu into the terminal to
+      select a repo. To select multiple repos, separate the indexes by commas.
     * Example:
     ``` shell
     0, 3, 4
     ```
-    * or Hit [ENTER] to select all
-6. Old tarballs will be purged where applicable, and new tarballs will attempt to build.
-  If successful, "BUILD SUCCESSFUL" will print.
-7. If the script information is different than the default, enter script info to
-  be used to update node.
+    * Type nothing and hit [ENTER] to select all repos.
+6. The build process will begin and old tarballs will be purged where applicable, then new tarballs will attempt to build. If successful, "BUILD SUCCESSFUL" will print.
+7. Update the script info if it is different than the default shown.
 8. Local mirror directory will be created if it does not already exist, and tarballs will be extracted to it.
 
 COMING SOON
