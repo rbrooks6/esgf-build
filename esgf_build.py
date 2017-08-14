@@ -237,7 +237,20 @@ def replace_string_in_file(file_name, original_string, new_string):
     with open(file_name, 'w') as file_handle:
         file_handle.write(filedata)
 
-def create_build_list(build_list, select_repo):
+def create_build_list(build_list, select_repo, all_repos_opt):
+    '''Creates a list of repos to build depending on a menu that the user picks from'''
+    #Enters this loop if all repos have been selected to build
+    if all_repos_opt is True:
+        build_list = repo_info.REPO_LIST
+        for repo in build_list:
+            if repo in repo_info.REPOS_TO_EXCLUDE:
+                print "EXCLUSION FOUND: " + repo
+                #removes the repo if it is in exclusion list
+                build_list.remove(repo)
+                continue
+        print "Building repos: " + str(build_list)
+        print "\n"
+        return
     select_repo = select_repo.split(',')
     select_repo = map(int, select_repo)
     for repo_num in select_repo:
@@ -249,15 +262,17 @@ def create_build_list(build_list, select_repo):
         else:
             #append the applicable selected menu items to a build list
             build_list.append(repo_name)
-            #DEBUG: PRINTS THE REPOS THAT ARE BEING BUILT
-            print "Repo: " + repo_name + " selected to be built."
     if not build_list:
         print "No applicable repos selected."
         exit()
+    else:
+        print "Building repos: " + str(build_list)
+        print "\n"
 
 def main():
     '''User prompted for build specifications '''
     build_list = []
+    select_repo = []
     #Use a raw_input statement to ask the user if they want to update devel or master
     #The user's answer will set the active_branch variable; must either be devel or master
     while True:
@@ -303,17 +318,17 @@ def main():
         if not select_repo:
             all_repo_q = raw_input("Do you want to build all repositories? (Y or YES) ")
             #if they do not say yes, ask them again which repos will be built
-            if all_repo_q.lower() not in ["yes", "y"]:
+            if all_repo_q.lower() not in ["yes", "y", ""]:
                 print "Not a valid response."
                 continue
             #if they do say yes then the build list is all the repos
             else:
-                build_list = repo_info.REPO_LIST
+                create_build_list(build_list, select_repo, all_repos_opt=True)
                 break
         #if the user does enter something, convert to list of ints
         else:
             try:
-                create_build_list(build_list, select_repo)
+                create_build_list(build_list, select_repo, all_repos_opt=False)
                 break
             #if mapping fails, then an incorrect value must have been entered
             except (ValueError, IndexError):
@@ -330,7 +345,7 @@ def main():
            + 'SCRIPT_VERSION = ' + repo_info.SCRIPT_VERSION)
 
     default_script_q = raw_input("\nDo you want to use the default script settings? (Y or YES): ")
-    if default_script_q.lower() not in ['y', 'yes', '\n']:
+    if default_script_q.lower() not in ['y', 'yes', '']:
         script_major_version = raw_input("Please set the script_major_version: ")
         script_release = raw_input("Please set the script_release: ")
         script_version = raw_input("Please set the script version: ")
