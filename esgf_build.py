@@ -12,6 +12,10 @@ import mmap
 from git import Repo
 import repo_info
 
+
+#MJ - 16 min w/ desktop
+#   - 9 min w/o
+
 #TODO: create a list of repos to exclude from building
 
 def update_all(active_branch, starting_directory):
@@ -58,12 +62,6 @@ def build_all(build_list, starting_directory):
     for repo in build_list:
         #TODO: add loading bar while ant runs?
         #TODO: include installer in build script for final version
-        if repo == 'esgf-installer':
-            continue
-        if repo == 'esgf-publisher-resources':
-            continue
-        if repo == 'esg-publisher':
-            continue
         print "Building repo: " + repo
         #the directory is changed to the repo directory
         #in order to call ant on the build.xml file in the directory
@@ -118,22 +116,20 @@ def build_all(build_list, starting_directory):
             if mmap_object.find('BUILD') != -1:
                 return log
 
-def create_esgf_tarballs(starting_directory, build_list):
-    #TODO: how should I be using the dists that were created?
-    ##### is adding the repos to the tarball correct?
-    ##### or should i be using something from build func?
-    #creating a directory to save the tarballs to
-    #import pdb; pdb.set_trace()
+    #TODO: also print total time that each one took.
 
+    #TODO remove ivy.xml directory????
+
+def create_esgf_tarballs(starting_directory, build_list):
+    '''create_esgf_tarballs using tarfile'''
     tarball_dir = starting_directory + "/esgf_tarballs"
     print "Attempting to remove old tarballs."
     try:
         shutil.rmtree(tarball_dir)
         print "Old tarballs removed, beginning to create tarballs."
-    except:
+    except OSError:
         print "No old tarballs located, beginning to create tarballs."
     os.makedirs(tarball_dir)
-    #TODO: pass in the build_list to only build tarballs for specified repos
     for repo in build_list:
         #each tarball will have it's own directory in the main tarball directory
         local_tarball_dir = os.path.join(tarball_dir, repo)
@@ -155,7 +151,6 @@ def create_local_mirror_directory(active_branch, starting_directory):
     #if active_branch is master then copy to dist folder
     #untar in dist and delete tarballs
     print "Creating local mirrror directory."
-    #TODO: realpath stuff
     mkdir_p('../esgf_bin')
     os.chdir('esgf_tarballs')
     #goes to each tarball listed in the tarballs directory
@@ -167,20 +162,33 @@ def create_local_mirror_directory(active_branch, starting_directory):
 
 def update_esg_node(active_branch, starting_directory, script_major_version,
                     script_release, script_version):
-    srcdir = 'esgf-installer'
+    '''Updates information in esg-node file'''
+    src_dir = 'esgf-installer'
 
     if active_branch == 'devel':
-        installerdir = (starting_directory
-                        +'/dist-repos/prod/dist/devel/esgf-installer/'
-                        + script_major_version)
+        installer_dir = (starting_directory
+                         +'/esgf_bin/prod/dist/devel/esgf-installer/'
+                         + script_major_version)
     else:
-        installerdir = (starting_directory
-                        + '/dist-repos/prod/dist/esgf-installer/'
-                        + script_major_version)
-    #TODO: use script info here to update node w/ proper info
-    #set installer directory and last push directory depending on it (???)
+        installer_dir = (starting_directory
+                         + '/esgf_bin/prod/dist/esgf-installer/'
+                         + script_major_version)
 
+    #TODO: mkdir_p????
+
+    #TODO: in the future, remove script_settings
+    replace_script_maj_version = '2.0'
+    replace_release = 'Centaur'
+    replace_version = 'v2.0-RC5.4.0-devel'
+
+    replace_string_in_file('esg-node', replace_script_maj_version, script_major_version)
+    replace_string_in_file('esg-node', replace_release, script_release)
+    replace_string_in_file('esg-node', replace_version, script_version)
+    #set installer directory and last push directory depending on it (???)
+    #installer directory is the directory installed to vs source directory which
+    #is directory sourcing the code
     ########
+
     #starting_directory.git.checkout(active_branch)
 
     #starting_directory.remotes.origin.pull()
@@ -188,13 +196,10 @@ def update_esg_node(active_branch, starting_directory, script_major_version,
 
     #####TODO: use index @ -1 to find the last element of a list
 
-
     #set source directory and installer directory
     #active_branch is devel or master
     #replace old node references to past versions/release/etc to updated ones
     #use md5 to make sure the right thing is being downloaded
-
-    pass
 
 def esgf_upload():
     #use rsync to upload
@@ -217,9 +222,38 @@ def mkdir_p(path, mode=0777):
     except OSError as exc:  # Python >2.5
         if exc.errno == errno.EEXIST and os.path.isdir(path):
             print "{path} already exists".format(path=path)
-            pass
         else:
             raise
+
+
+
+def replace_string_in_file(file_name, original_string, new_string):
+    '''Goes into a file and replaces string'''
+    with open(file_name, 'r') as file_handle:
+        filedata = file_handle.read()
+    filedata = filedata.replace(original_string, new_string)
+
+    # Write the file out again
+    with open(file_name, 'w') as file_handle:
+        file_handle.write(filedata)
+
+def create_build_list(build_list, select_repo):
+    select_repo = select_repo.split(',')
+    select_repo = map(int, select_repo)
+    for repo_num in select_repo:
+        repo_name = repo_info.REPO_LIST[repo_num]
+        #excludes repos that should not be built
+        if repo_name in repo_info.REPOS_TO_EXCLUDE:
+            print "EXCLUSION FOUND: " + repo_name
+            continue
+        else:
+            #append the applicable selected menu items to a build list
+            build_list.append(repo_name)
+            #DEBUG: PRINTS THE REPOS THAT ARE BEING BUILT
+            print "Repo: " + repo_name + " selected to be built."
+    if not build_list:
+        print "No applicable repos selected."
+        exit()
 
 def main():
     '''User prompted for build specifications '''
@@ -279,22 +313,12 @@ def main():
         #if the user does enter something, convert to list of ints
         else:
             try:
-                select_repo = select_repo.split(',')
-                select_repo = map(int, select_repo)
-                try:
-                    for repo in select_repo:
-                        #append the menu items based on the number selected
-                        build_list.append(repo_info.REPO_LIST[repo])
-                    break
-                #if append fails then a value not in index
-                except IndexError:
-                    print "Invalid entry, please enter repos to build."
-                    continue
+                create_build_list(build_list, select_repo)
+                break
             #if mapping fails, then an incorrect value must have been entered
-            except ValueError:
+            except (ValueError, IndexError):
                 print "Invalid entry, please enter repos to build."
                 continue
-    build_all(build_list, starting_directory)
 
     #Use a raw_input statement to ask the user to set the script_major_version, script_release, and
     #script_version
@@ -317,6 +341,9 @@ def main():
         script_version = repo_info.SCRIPT_VERSION
 
     print "Script settings set.\n"
+
+    build_all(build_list, starting_directory)
+
     #execute the create_esgf_tarballs() function
     create_esgf_tarballs(starting_directory, build_list)
 
