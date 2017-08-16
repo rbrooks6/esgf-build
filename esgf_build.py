@@ -9,6 +9,7 @@ import errno
 from distutils.spawn import find_executable
 import tarfile
 import mmap
+import hashlib
 from git import Repo
 import repo_info
 
@@ -163,7 +164,7 @@ def create_local_mirror_directory(active_branch):
         else:
             tar.extractall(path="../esgf_bin/prod/dist/{tgt_dir}".format(tgt_dir=trgt_dir))
         tar.close()
-    print "Tarballs extracted to directory."
+    print "Tarballs extracted to directory.\n"
 
 def update_esg_node(active_branch, starting_directory, script_settings_local):
     '''Updates information in esg-node file'''
@@ -197,13 +198,10 @@ def update_esg_node(active_branch, starting_directory, script_settings_local):
     replace_string_in_file('esg-node', replace_release, script_settings_local['script_release'])
     replace_string_in_file('esg-node', replace_version, script_settings_local['script_version'])
 
-
-    #set installer directory and last push directory depending on it (???)
-    #installer directory is the directory installed to vs source directory which
-    #is directory sourcing the code
-    ########
-
-    #####TODO: use index @ -1 to find the last element of a list
+    print "Copying esg-init and auto-installer."
+    #TODO: copy auto-installer and esg-init from source directory to installer directory
+    shutil.copytree(src_dir + "/esg-init", installer_dir + "/esg-init")
+    shutil.copytree(src_dir + "/setup-autoinstall", installer_dir + "/setup-autoinstall")
 
     #TODO: use md5 to make sure the right thing is being downloaded
 
