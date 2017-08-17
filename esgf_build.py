@@ -14,8 +14,8 @@ from git import Repo
 import repo_info
 
 def update_all(active_branch, starting_directory):
-    '''Checks each repo in the REPO_LIST for the most updated branch '''
-    ##taglist will keep track of different versions
+    '''Checks each repo in the REPO_LIST for the most updated branch, and uses
+    taglist to track versions '''
     print "Beginning to update directories."
     fileobject = open("taglist", "w")
     for repo in repo_info.REPO_LIST:
@@ -23,9 +23,7 @@ def update_all(active_branch, starting_directory):
             os.chdir(starting_directory + "/" + repo)
         except OSError:
             print "Directory does not exist"
-        #getting the current working directory (mimics bash pwd)
         repo_handle = Repo(os.getcwd())
-        #changes to the active branch using checkout
         repo_handle.git.checkout(active_branch)
         repo_handle.remotes.origin.pull()
         print "Updating: " + repo
@@ -36,30 +34,25 @@ def update_all(active_branch, starting_directory):
         new_tag_list.reverse()
         latest_tag = str(new_tag_list[0])
         fileobject.write(latest_tag)
-        #moves up one directory
         os.chdir("..")
     fileobject.close()
     print "Directory updates complete."
 
 def build_all(build_list, starting_directory):
     '''Takes a list of repositories to build, and uses ant to build them '''
-    #use subprocess for ANT
-    #locate the paths for ANT, java, and python
     #TODO: use subprocess w/ bash command to set the java and python paths
+    #TODO: add loading bar while ant runs?
+    #TODO: include installer in build script for final version
+    #TODO: Remove ivy.xml directory?
     ant_path = find_executable('ant')
     #java_path = find_executable('java')
     #python_path = find_executable('python')
-    #logs will be saved at the starting directory in the folder buildlogs
+
     log_directory = starting_directory + "/buildlogs"
-    #creates a directory for the logs in the system if one does not exist
     if not os.path.exists(log_directory):
         os.makedirs(log_directory)
     for repo in build_list:
-        #TODO: add loading bar while ant runs?
-        #TODO: include installer in build script for final version
         print "Building repo: " + repo
-        #the directory is changed to the repo directory
-        #in order to call ant on the build.xml file in the directory
         os.chdir(starting_directory + "/" + repo)
         #repos getcert and stats-api do not need an ant pull call
         if repo == 'esgf-getcert':
@@ -69,7 +62,6 @@ def build_all(build_list, starting_directory):
             build_log = log_directory + "/" + repo + "-build.log"
             with open(build_log, "w") as fgc2:
                 stream_subprocess_output('{ant} dist'.format(ant=ant_path), fgc2)
-
             os.chdir("..")
             continue
         if repo == 'esgf-stats-api':
@@ -91,12 +83,12 @@ def build_all(build_list, starting_directory):
         with open(build_log, "w") as file3:
             stream_subprocess_output("{ant} make_dist".format(ant=ant_path), file3)
         os.chdir("..")
-    print "\nRepository builds complete."
 
+    print "\nRepository builds complete."
     print "Finding esgf log files.\n"
-    #uses glob to find all esgf log files
-    #then iterates over the log files , opens them
-    #and uses a mmap object to search through for BUILD reference
+
+    #uses glob to find all esgf log files then iterates over the log files ,
+    #opens them and uses a mmap object to search through for BUILD reference
     #returns the ones with BUILD references to be checked by a script during build
     all_logs = glob.glob('buildlogs/esg*-*-build.log')
     for log in all_logs:
@@ -104,10 +96,6 @@ def build_all(build_list, starting_directory):
             mmap_object = mmap.mmap(flog.fileno(), 0, access=mmap.ACCESS_READ)
             if mmap_object.find('BUILD') != -1:
                 return log
-
-    #TODO: also print total time that each one took.
-
-    #TODO remove ivy.xml directory????
 
 def create_esgf_tarballs(starting_directory, build_list):
     '''create_esgf_tarballs using tarfile'''
@@ -151,27 +139,19 @@ def create_local_mirror_directory(active_branch, starting_directory, build_list)
         mkdir_p('esgf_bin/prod/dist/{tgt_dir}'.format(tgt_dir=trgt_dir))
         tar = tarfile.open(tarball)
         if active_branch == 'devel':
-            try:
-                tar.extractall(path="../esgf_bin/prod/dist/devel/{tgt_dir}".format(tgt_dir=trgt_dir))
-            except IOError:
-                create_esgf_tarballs(starting_directory, build_list)
-                create_local_mirror_directory(active_branch, starting_directory, build_list)
+            tar.extractall(path="../esgf_bin/prod/dist/devel/{tgt_dir}".format(tgt_dir=trgt_dir))
         else:
-            try:
-                tar.extractall(path="../esgf_bin/prod/dist/{tgt_dir}".format(tgt_dir=trgt_dir))
-            except IOError:
-                create_esgf_tarballs(starting_directory, build_list)
-                create_local_mirror_directory(active_branch, starting_directory, build_list)
+            tar.extractall(path="../esgf_bin/prod/dist/{tgt_dir}".format(tgt_dir=trgt_dir))
         tar.close()
     print "Tarballs extracted to directory.\n"
 
 def update_esg_node(active_branch, starting_directory, script_settings_local):
     '''Updates information in esg-node file'''
+    #TODO: in the future, remove hard-coded script settings from esgf-node
     os.chdir("../esgf-installer")
     src_dir = os.getcwd()
 
     repo_handle = Repo(os.getcwd())
-    #changes to the active branch using checkout
     repo_handle.git.checkout(active_branch)
     repo_handle.remotes.origin.pull()
 
@@ -187,7 +167,7 @@ def update_esg_node(active_branch, starting_directory, script_settings_local):
                          + '/esgf_bin/prod/dist/esgf-installer/'
                          + script_settings_local['script_major_version'])
         last_push_dir = (starting_directory + '/dist-repos/prod/dist')
-    #TODO: in the future, remove script_settings from esg-node
+
     replace_script_maj_version = '2.0'
     replace_release = 'Centaur'
     replace_version = 'v2.0-RC5.4.0-devel'
@@ -199,11 +179,9 @@ def update_esg_node(active_branch, starting_directory, script_settings_local):
     replace_string_in_file('esg-node', replace_version, script_settings_local['script_version'])
 
     print "Copying esg-init and auto-installer."
-    #TODO: copy auto-installer and esg-init from source directory to installer directory
     shutil.copyfile(src_dir + "/esg-init", installer_dir + "/esg-init")
     shutil.copyfile(src_dir + "/setup-autoinstall", installer_dir + "/setup-autoinstall")
 
-    #TODO: use hashlib to generate a checksum for lastpushdir
     with open('esg-init.md5', 'w') as file1:
         file1.write(get_md5sum('esg-init'))
     with open('esg-node.md5', 'w') as file1:
@@ -215,6 +193,7 @@ def update_esg_node(active_branch, starting_directory, script_settings_local):
         file1.write(get_md5sum(last_push_dir))
 
 def esgf_upload():
+    '''Uses rsync to upload to coffee server'''
     #use rsync to upload
     print "Beginning upload."
     with open('esgfupload.log', 'a') as file1:
@@ -225,7 +204,7 @@ def esgf_upload():
         stream_subprocess_output("rsync -arWvunO dist-repos/prod/ -e ssh --delete"
                                  /"esgf@distrib-coffee.ipsl.jussieu.fr:/home/esgf/esgf/"
                                  /" 2>&1 |tee esgfupload.log", file1)
-    print "Hello, I am esgf_upload."
+    print "Upload completed!"
 
 def stream_subprocess_output(command_string, file_handle):
     ''' Print out the stdout of the subprocess in real time '''
@@ -304,11 +283,10 @@ def set_script_settings(default_script_q, script_settings_local):
         script_settings_local['script_release'] = raw_input("Please set the script_release: ")
         script_settings_local['script_version'] = raw_input("Please set the script version: ")
         return script_settings_local
-    else:
-        print "Using default script settings."
-        return repo_info.SCRIPT_INFO.copy()
+    print "Using default script settings."
+    return repo_info.SCRIPT_INFO.copy()
 
-def get_path_to_repos(starting_directory):
+def find_path_to_repos(starting_directory):
     '''Checks the path provided to the repos to see if it exists'''
     if os.path.isdir(os.path.realpath(starting_directory)):
         starting_directory = os.path.realpath(starting_directory)
@@ -346,8 +324,7 @@ def main():
     build_list = []
     select_repo = []
     script_settings_local = {}
-    #Use a raw_input statement to ask the user if they want to update devel or master
-    #The user's answer will set the active_branch variable; must either be devel or master
+
     while True:
         active_branch = raw_input("Do you want to update devel or master branch? ")
 
@@ -358,10 +335,9 @@ def main():
             break
 
     while True:
-        #check if the directory exists, if not build it then get absolute path
         starting_directory = raw_input("Please provide the path to the" +
                                        " repositories on your system: ").strip()
-        if not get_path_to_repos(starting_directory):
+        if not find_path_to_repos(starting_directory):
             break
 
     update_all(active_branch, starting_directory)
@@ -395,7 +371,6 @@ def main():
            + 'SCRIPT_VERSION = ' + repo_info.SCRIPT_INFO['script_version'])
 
     default_script_q = raw_input("\nDo you want to use the default script settings? (Y or YES): ")
-    #import pdb; pdb.set_trace()
     script_settings_local = set_script_settings(default_script_q, script_settings_local)
     print script_settings_local
     print "Script settings set."
@@ -406,7 +381,10 @@ def main():
 
     create_local_mirror_directory(active_branch, starting_directory, build_list)
 
-    update_esg_node(active_branch, starting_directory, script_settings_local)
+    try:
+        update_esg_node(active_branch, starting_directory, script_settings_local)
+    except IOError:
+        print ("esgf_bin for installer not present, node update and server upload cannot be completed.")
 
     #esgf_upload()
 
