@@ -13,6 +13,19 @@ import hashlib
 from git import Repo
 import repo_info
 
+######IMPORTANT################################################################
+# Everything works and is tested up to update node and upload.
+#Still need to try and eliminate tarballs entirely, eliminate hard-coded
+#script settings in esg-node, use subprocess to set java and python paths,
+#remove ivy.xml, etc.
+#
+# Current idea was to replace build_list with repo_info.CREATE_DIRECTORY_LIST
+#in create_local_mirror_directory and create_esgf_tarballs function in order to
+#set up esgf-installer which is needed in line 162 onward.
+#
+# esgf_upload remains un-tested and is a direct copy of the bash script
+#into a subprocess.
+
 def update_all(active_branch, starting_directory):
     '''Checks each repo in the REPO_LIST for the most updated branch, and uses
     taglist to track versions '''
